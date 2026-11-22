@@ -54,6 +54,16 @@ class RouteTests(unittest.TestCase):
                 self.assertEqual(status, 301)
                 self.assertEqual(headers['Location'], '/herbs/ginger')
 
+    def test_explorer_canonical_route(self):
+        query = '?ref=home'
+        for method in ('GET', 'HEAD'):
+            status, headers, _ = self.request('/herb-explorer/' + query, method)
+            self.assertEqual((status, headers['Location']), (301, '/herb-explorer' + query))
+            status, _, body = self.request('/herb-explorer' + query, method)
+            self.assertEqual(status, 200)
+            expected = (ROOT / 'herb-explorer.html').read_bytes() if method == 'GET' else b''
+            self.assertEqual(body, expected)
+
     def test_query_trailing_slash_and_head(self):
         expected = (ROOT / 'herbs/ginger.html').read_bytes()
         self.assertEqual(self.request('/herbs/ginger/?utm_source=test')[2], expected)

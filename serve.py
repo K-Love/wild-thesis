@@ -74,6 +74,12 @@ class CleanURLHandler(http.server.SimpleHTTPRequestHandler):
                 return self.redirect('/herbs/' + slug)
         if path.endswith('.html') and Path(self.translate_path(path)).is_file():
             return self.redirect(quote(path[:-5], safe='/') + ('?' + url.query if url.query else ''))
+        # The flat Explorer page serves the extensionless URL on the live site.
+        if url.path == '/herb-explorer/':
+            return self.redirect('/herb-explorer' + ('?' + url.query if url.query else ''))
+        if url.path == '/herb-explorer':
+            self.path = '/herb-explorer.html'
+            return super().send_head()
         target = Path(self.translate_path(path))
         if not target.is_file() and not target.is_dir():
             html = Path(str(target) + '.html')
